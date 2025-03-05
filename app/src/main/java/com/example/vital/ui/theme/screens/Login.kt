@@ -22,11 +22,25 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.vital.ui.theme.*
 import androidx.compose.ui.text.font.FontWeight
+import java.util.regex.Pattern
 
 @Composable
-fun LoginScreen(navController: NavController) {  // ✅ NavController added
+fun LoginScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+
+    fun isEmailValid(email: String): Boolean {
+        val emailPattern = Pattern.compile(
+            "^[A-Za-z0-9._%+-]+@(gmail|hotmail|yahoo|outlook)\\.com$"
+        )
+        return emailPattern.matcher(email).matches()
+    }
+
+    fun isPasswordValid(password: String): Boolean {
+        return password.length >= 8
+    }
 
     Column(
         modifier = Modifier
@@ -45,18 +59,38 @@ fun LoginScreen(navController: NavController) {  // ✅ NavController added
 
         CustomInput(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = {
+                email = it
+                emailError = if (isEmailValid(it)) null else "Invalid email address"
+            },
             placeholder = "Email"
         )
+        emailError?.let {
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.error,
+                style = AppTypography.bodySmall
+            )
+        }
 
         Spacer(modifier = Modifier.height(25.dp))
 
         CustomInput(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = {
+                password = it
+                passwordError = if (isPasswordValid(it)) null else "Password must be at least 8 characters"
+            },
             placeholder = "Password",
             visualTransformation = PasswordVisualTransformation()
         )
+        passwordError?.let {
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.error,
+                style = AppTypography.bodySmall
+            )
+        }
 
         Spacer(modifier = Modifier.height(25.dp))
 
@@ -80,7 +114,9 @@ fun LoginScreen(navController: NavController) {  // ✅ NavController added
 
         Button(
             onClick = {
-                navController.navigate("home")  // ✅ Navigate to home screen
+                if (emailError == null && passwordError == null) {
+                    navController.navigate("home")
+                }
             },
             modifier = Modifier
                 .width(220.dp)
@@ -119,7 +155,7 @@ fun LoginScreen(navController: NavController) {  // ✅ NavController added
                     modifier = Modifier
                         .size(24.dp)
                         .clickable {
-                            navController.navigate("social_login/${index + 1}") // ✅ Navigate to social login screen
+                            navController.navigate("social_login/${index + 1}")
                         }
                 )
             }
@@ -138,7 +174,7 @@ fun LoginScreen(navController: NavController) {  // ✅ NavController added
             Text(
                 text = " Reset here",
                 style = AppTypography.bodySmall.copy(color = ResetBlue),
-                modifier = Modifier.clickable { navController.navigate("reset_password") }, // ✅ Navigate to reset password
+                modifier = Modifier.clickable { navController.navigate("reset_password") },
                 textDecoration = TextDecoration.Underline
             )
         }
