@@ -33,7 +33,7 @@ fun LoginScreen(navController: NavController) {
 
     fun isEmailValid(email: String): Boolean {
         val emailPattern = Pattern.compile(
-            "^[A-Za-z0-9._%+-]+@(gmail|hotmail|yahoo|outlook)\\.com$"
+            "^[A-Za-z0-9_]+@(gmail|hotmail|yahoo|outlook)\\.com$"
         )
         return emailPattern.matcher(email).matches()
     }
